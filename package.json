@@ -25,7 +25,7 @@
     "url": "https://github.com/rmeissner/safe-balances/issues"
   },
   "dependencies": {
-    "@gnosis.pm/safe-apps-sdk": "https://github.com/gnosis/safe-apps-sdk.git#8cf9681",
+    "@gnosis.pm/safe-apps-sdk": "https://github.com/gnosis/safe-apps-sdk.git#2d9b62f",
     "@gnosis.pm/safe-react-components": "^0.1.3",
     "@material-ui/core": "^4.10.2",
     "@material-ui/icons": "^4.9.1",
