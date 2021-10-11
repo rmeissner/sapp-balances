@@ -17,6 +17,12 @@ const styles = createStyles({
   }
 })
 
+const TokenImage: React.FC<{tokenAddress: string}> = ({ tokenAddress }) => {
+  const [errored, setErrored] = useState(false)
+  const url = `https://gnosis-safe-token-logos.s3.amazonaws.com/${tokenAddress}.png`
+  return errored ? <></> : <img width={40} height={40} src={url} onError={() => setErrored(true)} />
+}
+
 const App: React.FC<WithStyles<typeof styles>> = ({ classes }) => {
   const sdk = useSdk()
   const [showAddToken, setShowAddToken] = useState<boolean>(false)
@@ -57,7 +63,7 @@ const App: React.FC<WithStyles<typeof styles>> = ({ classes }) => {
       {balances.map((b) => (
         <ListItem button={true} onClick={() => setTransferToken(b.token)}>
           <ListItemIcon>
-            <img width={40} height={40} src={`https://gnosis-safe-token-logos.s3.amazonaws.com/${b.token.address}.png`} />
+            <TokenImage tokenAddress={b.token.address} />
           </ListItemIcon>
           <ListItemText className={classes.itemText} primary={`${b.balance || "0"} ${b.token.symbol}`} />
         </ListItem>
