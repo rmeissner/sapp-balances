@@ -1,4 +1,4 @@
-import { Transaction } from "@gnosis.pm/safe-apps-sdk";
+import { BaseTransaction } from "@gnosis.pm/safe-apps-sdk";
 import { Eth } from "@gnosis.pm/safe-apps-sdk/dist/src/eth"
 import { utils, Contract, BigNumber } from "ethers"
 
@@ -65,7 +65,7 @@ export const loadTokenInfo = async (eth: Eth, address: string): Promise<Token> =
 export const loadTokenBalance = async (eth: Eth, address: string, account: string): Promise<string> => {
     const cleanAccount = utils.getAddress(account)
     if (address === "") {
-        const ethBalance = await eth.getBalance({ params: [account] })
+        const ethBalance = await eth.getBalance([account])
         return ethBalance
     }
     const cleanAddress = utils.getAddress(address)
@@ -73,12 +73,10 @@ export const loadTokenBalance = async (eth: Eth, address: string, account: strin
 }
 
 const callErc20Method = async (eth: Eth, address: string, method: string, params?: any[]): Promise<utils.Result> => {
-    const result = await eth.call({
-        params: [{
-            to: address,
-            data: erc20Interface.encodeFunctionData(method, params)
-        }]
-    })
+    const result = await eth.call([{
+        to: address,
+        data: erc20Interface.encodeFunctionData(method, params)
+    }])
     return erc20Interface.decodeFunctionResult(method, result)
 }
 
@@ -88,12 +86,12 @@ const writeTrackedTokens = async (trackedTokens: Record<string, string>) => {
 
 export const loadTrackedTokens = async (): Promise<Record<string, string>> => {
     const trackedTokensStorage = localStorage.getItem(TRACKED_TOKENS)
-    let trackedTokens = { "": ""}
+    let trackedTokens = { "": "" }
     if (trackedTokensStorage) {
-        try { 
-            trackedTokens = JSON.parse(trackedTokensStorage) 
-        } catch (e) { 
-            localStorage.removeItem(TRACKED_TOKENS) 
+        try {
+            trackedTokens = JSON.parse(trackedTokensStorage)
+        } catch (e) {
+            localStorage.removeItem(TRACKED_TOKENS)
         }
     }
     return trackedTokens
@@ -107,7 +105,15 @@ export const trackToken = async (address: string) => {
     writeTrackedTokens(trackedTokens)
 }
 
-export const encodeTransfer = async (tokenAddress: string, receiver: string, amount: BigNumber): Promise<Transaction> => {
+export const untrackToken = async (address: string) => {
+    const trackedTokens = await loadTrackedTokens()
+    const cleanAddress = utils.getAddress(address)
+    if (!(cleanAddress in trackedTokens)) return
+    delete trackedTokens[cleanAddress]
+    writeTrackedTokens(trackedTokens)
+}
+
+export const encodeTransfer = async (tokenAddress: string, receiver: string, amount: BigNumber): Promise<BaseTransaction> => {
     if (tokenAddress === "") return {
         to: receiver,
         value: amount.toHexString(),
